@@ -55,10 +55,10 @@ pip install -r requirements.txt
 cd backend
 uvicorn main:app --reload
 
-cd D:\Namma-suraksha-2.0
+cd D:\Missing-Person
 .\venv\Scripts\activate
 pip install uvicorn fastapi
-cd D:\Namma-suraksha-2.0\backend
+cd D:\Missing-Person\backend
 uvicorn main:app --reload
 ```
 
@@ -109,3 +109,7 @@ http://127.0.0.1:8000/
 ## 👨‍💻 Author
 
 Built for hackathon demonstration
+Robin Ponnanna K M
+Pancham Verm 
+Prashanth K
+Utkarsh Singh
