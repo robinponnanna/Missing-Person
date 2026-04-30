@@ -108,8 +108,8 @@ http://127.0.0.1:8000/
 
 ## 👨‍💻 Author
 
-Built for hackathon demonstration
-Robin Ponnanna K M
-Pancham Verm 
-Prashanth K
+Built for hackathon demonstration - 
+Robin Ponnanna K M,
+Pancham Verm,
+Prashanth K,
 Utkarsh Singh
