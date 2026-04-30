@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>GeoTrace — Advanced Tracking Suite</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+  :root {
+    --bg: #f0ede8; --surface: #faf8f5; --border: #e2ddd6; --accent: #f0b429;
+    --dark: #1c1917; --text: #2d2a26; --muted: #9c9489; --red: #e05252;
+    --blue: #5271ff; --green: #3daa70; --sans: 'Outfit', sans-serif; --mono: 'JetBrains Mono', monospace;
+  }
+  body { height: 100vh; overflow: hidden; background: var(--bg); font-family: var(--sans); margin: 0; }
+  .app { display: grid; grid-template-columns: 280px 1fr; height: 100vh; }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+  .nav-label { font-size: 10px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-top: 10px; }
+  .search-box { background: white; border: 1px solid var(--border); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px; }
+  .search-box input { border: none; outline: none; width: 100%; font-family: var(--mono); font-size: 11px; }
+  .btn { width: 100%; padding: 12px; border-radius: 10px; border: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .btn-ghost { background: transparent; border: 1.5px solid var(--border); }
+  .btn-omni { background: var(--red); color: white; }
+  .main { display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
+  .stats-bar { display: grid; grid-template-columns: repeat(5, 1fr); gap: 35px; padding: 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
+  .stat-card { border-left: 3px solid var(--accent); padding-left: 12px; }
+  .stat-card b { display: block; font-size: 16px; font-family: var(--mono); }
+  .content-grid { display: grid; grid-template-columns: 1fr 300px; gap: 20px; padding: 20px; height: 100%; overflow: hidden; }
+  #map { height: 100%; border-radius: 14px; border: 1px solid var(--border); }
+  .panel-card { background: white; border: 1px solid var(--border); border-radius: 14px; padding: 15px; margin-bottom: 20px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div style="font-size: 20px; font-weight: 600; margin-bottom: 10px;"><i class="fas fa-satellite"></i> GeoTrace</div>
+    
+    <div class="nav-label">Evidence</div>
+    <div class="btn btn-ghost" onclick="document.getElementById('files').click()" style="border-style:dashed; flex-direction:column; background:white;">
+        <i class="fas fa-camera" style="color:var(--accent)"></i>
+        <span style="font-size:11px">Upload GPS Photos</span>
+    </div>
+    <input type="file" id="files" multiple style="display:none" onchange="uploadImages()">
+
+    <div class="nav-label">Search Subject</div>
+    <div class="search-box"><i class="fas fa-phone"></i><input type="text" id="phone" placeholder="Mobile No..."></div>
+    <div class="search-box"><i class="fas fa-credit-card"></i><input type="text" id="acct" placeholder="Account ID..."></div>
+
+    <div class="nav-label">Tracing Modes</div>
+    <button onclick="runTrace('images')" class="btn btn-ghost"><i class="fas fa-images"></i> Image Only</button>
+    <button onclick="runTrace('mobile')" class="btn btn-ghost"><i class="fas fa-broadcast-tower"></i> Tower Logs</button>
+    <button onclick="runTrace('transactions')" class="btn btn-ghost"><i class="fas fa-shopping-cart"></i> Transaction Logs</button>
+    <button onclick="runTrace('omni')" class="btn btn-omni"><i class="fas fa-microchip"></i> OMNI-TRACE</button>
+    <button onclick="clearData()" class="btn btn-ghost" style="margin-top:auto; color:var(--red); border-color:rgba(224,82,82,0.2);">
+    <i class="fas fa-sync-alt"></i> Reset System
+</button>
+  </aside>
+
+  <div class="main">
+    <div class="stats-bar">
+      <div class="stat-card"><span>Signals</span><b id="s-count">0</b></div>
+      <div class="stat-card" style="border-color:var(--green)"><span>Reliability</span><b id="s-conf">0%</b></div>
+      <div class="stat-card" style="border-color:var(--blue)"><span>Geo-Radius</span><b id="s-rad">0m</b></div>
+      <div class="stat-card" style="border-color:var(--dark); grid-column: span 2;">
+        <span>Final Found Location (Lat, Lng)</span>
+        <b id="s-coords">Waiting for Trace...</b>
+      </div>
+    </div>
+    <div class="content-grid">
+      <div id="map"></div>
+      <div>
+        <div class="panel-card">
+            <h4 style="font-size:10px; text-transform:uppercase;">Geo-Confidence</h4>
+            <div style="text-align:center;">
+                <svg width="100" height="100" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="50" stroke="#eee" stroke-width="8" fill="none"/>
+                    <circle id="ring" cx="60" cy="60" r="50" stroke="#f0b429" stroke-width="8" fill="none" stroke-dasharray="314" stroke-dashoffset="314" transform="rotate(-90 60 60)" style="transition:0.5s;"/>
+                    <text id="ring-txt" x="50%" y="55%" text-anchor="middle" font-size="18" font-family="JetBrains Mono" font-weight="700">0%</text>
+                </svg>
+            </div>
+        </div>
+        <div id="logs" style="font-size:11px;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    const API = "http://localhost:8000";
+    let map = L.map('map', {zoomControl: false}).setView([12.9716, 77.5946], 12);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    
+    let markerLayer = L.layerGroup().addTo(map);
+    let predLayer = L.layerGroup().addTo(map); // Layer for the red pointer
+
+    async function uploadImages() {
+        const fd = new FormData();
+        for(let f of document.getElementById('files').files) fd.append("files", f);
+        await fetch(`${API}/upload/images`, {method:'POST', body:fd});
+        runTrace('images');
+    }
+
+    async function clearData() {
+    // 1. Confirm with the user before wiping forensic data
+    if (!confirm("Are you sure you want to reset the trace database?")) return;
+
+    try {
+        // 2. Call the backend clear route
+        const response = await fetch(`${API}/clear`, { method: 'POST' });
+        
+        if (response.ok) {
+            // 3. Reload the page to clear the map, stats, and search boxes
+            location.reload(); 
+        } else {
+            console.error("Failed to clear backend database.");
+        }
+    } catch (error) {
+        console.error("Error during reset:", error);
+    }
+}
+
+    async function runTrace(mode) {
+    const phone = document.getElementById('phone').value;
+    const acct = document.getElementById('acct').value;
+    const url = `${API}/track/${mode}?number=${phone}&account=${acct}`;
+    
+    const res = await fetch(url);
+    const data = await res.json();
+    
+    markerLayer.clearLayers(); 
+    predLayer.clearLayers();
+
+    if(data.predicted && data.points.length > 0) {
+        const p = data.predicted;
+        
+        // 1. Update the Stats Bar and Top Coordinates
+        document.getElementById('s-count').innerText = data.points.length;
+        document.getElementById('s-conf').innerText = Math.round(p.confidence * 100) + "%";
+        document.getElementById('s-rad').innerText = p.radius + "m";
+        document.getElementById('s-coords').innerText = `${p.lat.toFixed(6)}, ${p.lng.toFixed(6)}`;
+        
+        // 2. Update the Confidence Ring
+        const ring = document.getElementById('ring');
+        const ringText = document.getElementById('ring-txt');
+        const circumference = 314; // Fixed value for r=50
+        
+        // Offset = Circumference - (Progress * Circumference)
+        const offset = circumference - (p.confidence * circumference);
+        ring.style.strokeDashoffset = offset;
+        ringText.textContent = Math.round(p.confidence * 100) + "%";
+
+        // 3. Update the Map and Moving Pointer
+        L.marker([p.lat, p.lng]).addTo(predLayer);
+        L.circle([p.lat, p.lng], {
+            radius: p.radius, 
+            color: '#e05252', 
+            weight: 1, 
+            fillOpacity: 0.1
+        }).addTo(predLayer);
+        
+        map.flyTo([p.lat, p.lng], 14, {animate: true, duration: 1.5});
+    } else {
+        // Reset if no results found
+        document.getElementById('s-coords').innerText = "No Subject Found";
+        document.getElementById('ring-txt').textContent = "0%";
+        document.getElementById('ring').style.strokeDashoffset = 314;
+    }
+}
+    runTrace('omni');
+</script>
+</body>
+</html>
