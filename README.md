@@ -13,6 +13,7 @@ A real-time location prediction system that uses image EXIF data to estimate the
 - Clear/reset functionality
 
 ---
+---
 
 ## 🧠 How It Works
 
