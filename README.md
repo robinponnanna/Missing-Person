@@ -111,7 +111,7 @@ http://127.0.0.1:8000/
 
 ## 👨‍💻 Author
 
-- Robin Ponnanna K M,
-- Pancham Verm,
-- Prashanth K,
+- Robin Ponnanna K M
+- Pancham Verm
+- Prashanth K
 - Utkarsh Singh
