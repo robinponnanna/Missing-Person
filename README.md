@@ -6,6 +6,8 @@ A real-time location prediction system that uses image EXIF data to estimate the
 
 - Upload multiple images
 - Extract GPS + timestamp from EXIF data
+- Upload Transaction details (for trial a json file is included in /backend/transactions.json)
+- Upload Mobile Signal details (for trial a json file is included in /backend/mobile_signals.json)
 - Time-weighted prediction (recent images prioritized)
 - Heatmap visualization
 - Confidence score with animated UI
@@ -109,8 +111,7 @@ http://127.0.0.1:8000/
 
 ## 👨‍💻 Author
 
-Built for hackathon demonstration - 
-Robin Ponnanna K M,
-Pancham Verm,
-Prashanth K,
-Utkarsh Singh
+- Robin Ponnanna K M,
+- Pancham Verm,
+- Prashanth K,
+- Utkarsh Singh
