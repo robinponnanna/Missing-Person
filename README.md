@@ -2,6 +2,9 @@
 
 A real-time location prediction system that uses image EXIF data to estimate the most probable location of a missing person.
 
+## Deployed link
+- https://missing-person-finder-o2fn.onrender.com/
+
 ## 🚀 Features
 
 - Upload multiple images
@@ -42,9 +45,6 @@ frontend/
 ```
 
 ---
-
-## Deployed link
-- https://missing-person-finder-o2fn.onrender.com/
 
 ## ⚙️ Installation
 
