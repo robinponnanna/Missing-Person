@@ -12,7 +12,6 @@ A real-time location prediction system that uses image EXIF data to estimate the
 - Heatmap visualization
 - Confidence score with animated UI
 - Controlled radius prediction (no unrealistic expansion)
-- Clear/reset functionality
 
 ---
 ---
@@ -43,6 +42,9 @@ frontend/
 ```
 
 ---
+
+## Deployed link
+- https://missing-person-finder-o2fn.onrender.com/
 
 ## ⚙️ Installation
 
@@ -102,10 +104,21 @@ http://127.0.0.1:8000/
 
 ## 🧩 Future Improvements
 
-- Real-time tracking
-- Multi-person support
-- Road-aware movement prediction
-- CCTV / transaction data fusion
+Phase 1: Multi-Identifier Schema & Database
+  ├── Add IMEI, IMSI, and Biometric Embedding support to schemas.py
+  ├── Implement PostgreSQL + pgvector / Redis storage for persistent subject tracking
+  └── Connect dynamic tower ping simulators to replace static mock JSONs
+
+Phase 2: Camera Graph & Directional Exit Routing
+  ├── Define Camera Network Topology (intersections, arterial roads, highway exits)
+  ├── Implement exit-bearing calculation and next-hop camera activation logic
+  └── Integrate YOLOv8/OSNet Re-ID inference pipeline
+
+Phase 3: Autonomous 24/7 Watchdog Service
+  ├── Background worker (Celery/Redis) polling camera streams and CDR feeds
+  ├── Threshold-based alert dispatcher with WebSocket frontend notifications
+  └── Live investigation dashboard showing chained camera breadcrumbs on Leaflet
+
 
 ---
 
